@@ -1,31 +1,49 @@
 package com.cristofer.inventory.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "products")
 public class Product {
-    //Id of the product
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //name of the product
-    @NotBlank
-    @Size(min = 3, max = 100)
-    private String name;
-    //price of the product
-    @NotNull(message = "El precio es obligatorio.")
-    @DecimalMin(value = "0.00", inclusive = true,
-            message = "El precio no puede ser negativo.")
-    private BigDecimal price;
 
-    //stock of the product
-    @NotNull(message = "El stock es obligatorio.")
-    @PositiveOrZero(message = "El stock no puede ser negativo.")
+    private String name;
+    private BigDecimal price;
     private Integer stock;
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
 }
