@@ -8,6 +8,7 @@ public class ProductResponse {
     private BigDecimal price;
     private Integer stock;
 
+    //Setters
     public void setId(Long id) {
         this.id = id;
     }
@@ -22,5 +23,22 @@ public class ProductResponse {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+    //Getters
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public Integer getStock() {
+        return stock;
     }
 }

@@ -32,12 +32,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse findById(Long id) {
-        return null;
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found whith id: " + id));
+
+        return productMapper.toResponse(product);
     }
 
     @Override
-    public List<ProductResponse> findAll() {
-        return List.of();
+    public List<ProductResponse> findAll(){
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+                .map(productMapper::toResponse)
+                .toList();
     }
 
     @Override
