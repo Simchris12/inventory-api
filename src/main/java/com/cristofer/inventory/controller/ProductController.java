@@ -23,6 +23,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest request){
         ProductResponse response = productService.create(request);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -36,6 +37,13 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findById(@PathVariable Long id){
         ProductResponse response = productService.findById(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> update(@PathVariable Long id, @Valid @RequestBody ProductRequest request){
+        ProductResponse response = productService.update(id, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
