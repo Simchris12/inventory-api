@@ -3,6 +3,7 @@ package com.cristofer.inventory.service.impl;
 import com.cristofer.inventory.dto.request.ProductRequest;
 import com.cristofer.inventory.dto.response.ProductResponse;
 import com.cristofer.inventory.entity.Product;
+import com.cristofer.inventory.exception.ResourceNotFoundException;
 import com.cristofer.inventory.mapper.ProductMapper;
 import com.cristofer.inventory.repository.ProductRepository;
 import com.cristofer.inventory.service.ProductService;
@@ -33,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse findById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found whith id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         return productMapper.toResponse(product);
     }
@@ -50,7 +51,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse update(Long id, ProductRequest request){
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         product.setName(request.getName());
         product.setPrice(request.getPrice());
@@ -65,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         productRepository.delete(product);
     }
