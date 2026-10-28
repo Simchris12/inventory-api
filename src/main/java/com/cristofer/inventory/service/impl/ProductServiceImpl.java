@@ -3,6 +3,7 @@ package com.cristofer.inventory.service.impl;
 import com.cristofer.inventory.dto.request.ProductRequest;
 import com.cristofer.inventory.dto.response.ProductResponse;
 import com.cristofer.inventory.entity.Product;
+import com.cristofer.inventory.exception.DuplicateResourceException;
 import com.cristofer.inventory.exception.ResourceNotFoundException;
 import com.cristofer.inventory.mapper.ProductMapper;
 import com.cristofer.inventory.repository.ProductRepository;
@@ -25,6 +26,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse create(ProductRequest request) {
+
+        if (productRepository.existsByName(request.getName())){
+            throw new DuplicateResourceException("Product already exists with name: " + request.getName());
+        }
 
         Product product = productMapper.toEntity(request);
         Product savedProduct = productRepository.save(product);
@@ -52,6 +57,10 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse update(Long id, ProductRequest request){
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+
+        if(!product.getName().equals(request.getName()) && productRepository.existsByName(request.getName())){
+            throw new DuplicateResourceException("Product already exists with name: " + request.getName());
+        }
 
         product.setName(request.getName());
         product.setPrice(request.getPrice());
