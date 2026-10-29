@@ -1,9 +1,11 @@
 package com.cristofer.inventory.dto.request;
 
 import jakarta.validation.constraints.*;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
+@Data
 public class ProductRequest {
 
     //Datos que vamos a aceptar del cliente
