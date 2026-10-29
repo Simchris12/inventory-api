@@ -8,6 +8,8 @@ import com.cristofer.inventory.exception.ResourceNotFoundException;
 import com.cristofer.inventory.mapper.ProductMapper;
 import com.cristofer.inventory.repository.ProductRepository;
 import com.cristofer.inventory.service.ProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -45,12 +47,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> findAll(){
-        List<Product> products = productRepository.findAll();
-
-        return products.stream()
-                .map(productMapper::toResponse)
-                .toList();
+    public Page<ProductResponse> findAll(String name, Pageable pageable) {
+        if (name != null && !name.isBlank()) {
+            return productRepository.findByNameContainingIgnoreCase(name, pageable)
+                    .map(productMapper::toResponse);
+        }
+        return productRepository.findAll(pageable)
+                .map(productMapper::toResponse);
     }
 
     @Override

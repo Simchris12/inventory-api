@@ -4,10 +4,15 @@ import com.cristofer.inventory.dto.request.ProductRequest;
 import com.cristofer.inventory.dto.response.ProductResponse;
 import com.cristofer.inventory.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,12 +45,16 @@ public class ProductController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all products", description = "Returns a list of all products registered in the inventory.")
-    @ApiResponse(responseCode = "200", description = "List of products successfully retrieved.")
-    public ResponseEntity<List<ProductResponse>> findAll(){
-        List<ProductResponse> responses = productService.findAll();
+    @Operation(summary = "Get all products (Paginated & Filtered)", description = "Retrieves a paginated and sorted " +
+            "list of products. Optionally filters by partial product name (case-insensitive).")
+    @ApiResponse(responseCode = "200", description = "Paginated product list successfully retrieved")
+    public ResponseEntity<Page<ProductResponse>> findAll(
+            @Parameter(description = "Optional filter by product name (partial match, case-insensitive)")
+            @RequestParam(required = false) String name,
+            @ParameterObject @PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
+        Page<ProductResponse> response = productService.findAll(name, pageable);
 
-        return ResponseEntity.status(HttpStatus.OK).body(responses);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{id}")
