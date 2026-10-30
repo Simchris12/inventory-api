@@ -1,44 +1,36 @@
 package com.cristofer.inventory.dto.response;
 
-import java.math.BigDecimal;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "Response payload representing a product in the inventory")
 public class ProductResponse {
+
+    @Schema(description = "Unique identifier of the product", example = "1")
     private Long id;
+
+    @Schema(description = "Product name", example = "Mechanical Keyboard RGB")
     private String name;
+
+    @Schema(description = "Detailed description of the product", example = "Blue switches, aluminum frame")
+    private String description;
+
+    @Schema(description = "Unit price of the product", example = "89.99")
     private BigDecimal price;
+
+    @Schema(description = "Available units in stock", example = "25")
     private Integer stock;
 
-    //Setters
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Schema(description = "Timestamp when the product was created", example = "2026-10-29T11:15:30")
+    private LocalDateTime createdAt;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    @Schema(description = "Timestamp when the product was last updated", example = "2026-10-29T14:20:10")
+    private LocalDateTime updatedAt;
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
-
-    //Getters
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public Integer getStock() {
-        return stock;
-    }
 }
