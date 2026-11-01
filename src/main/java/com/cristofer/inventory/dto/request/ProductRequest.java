@@ -1,5 +1,6 @@
 package com.cristofer.inventory.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -36,6 +37,8 @@ public class ProductRequest {
     public Integer getStock() {
         return stock;
     }
+
+    @NotNull(message = "Category ID is required")
+    @Schema(description = "ID of the category this product belongs to", example = "1")
+    private Long categoryId;
 }
-
-

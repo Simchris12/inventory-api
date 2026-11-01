@@ -3,15 +3,22 @@ package com.cristofer.inventory.mapper;
 import com.cristofer.inventory.dto.request.ProductRequest;
 import com.cristofer.inventory.dto.response.ProductResponse;
 import com.cristofer.inventory.entity.Product;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 
 @Component
+@RequiredArgsConstructor
 public class ProductMapper {
 
-    public Product toEntity(ProductRequest request) {
-        Product product = new Product();
+    private final CategoryMapper categoryMapper;
 
+    public Product toEntity(ProductRequest request) {
+        if (request == null){
+            return null;
+        }
+
+        Product product = new Product();
         product.setName(request.getName());
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
@@ -31,6 +38,8 @@ public class ProductMapper {
         response.setStock(product.getStock());
         response.setCreatedAt(product.getCreatedAt());
         response.setUpdatedAt(product.getUpdatedAt());
+
+        response.setCategory(categoryMapper.toResponse(product.getCategory()));
 
         return response;
     }

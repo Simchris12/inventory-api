@@ -30,6 +30,10 @@ public class Product {
 
     private Integer stock;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @CreationTimestamp
     @Column(name = "created_at",  updatable = false)
     private LocalDateTime createdAt;

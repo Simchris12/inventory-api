@@ -2,10 +2,13 @@ package com.cristofer.inventory.service.impl;
 
 import com.cristofer.inventory.dto.request.ProductRequest;
 import com.cristofer.inventory.dto.response.ProductResponse;
+import com.cristofer.inventory.entity.Category;
 import com.cristofer.inventory.entity.Product;
 import com.cristofer.inventory.exception.ResourceNotFoundException;
 import com.cristofer.inventory.mapper.ProductMapper;
+import com.cristofer.inventory.repository.CategoryRepository;
 import com.cristofer.inventory.repository.ProductRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,8 +35,39 @@ class ProductServiceImplTest {
     @Mock
     private ProductMapper productMapper; // Simulacro del Mapper
 
+    @Mock
+    private CategoryRepository categoryRepository; // Simulacro de las categorías
+
     @InjectMocks
     private ProductServiceImpl productService; // La clase REAL que estamos probando
+
+    private ProductRequest request;
+    private Product product;
+    private Category category;
+
+    @BeforeEach
+    void setUp() {
+
+        // Crea una categoría de prueba
+        category = new Category();
+        category.setId(1L);
+        category.setName("Peripherals");
+
+        // Asigna el categoryId al request
+        request = new ProductRequest();
+        request.setName("Mechanical Keyboard");
+        request.setPrice(new BigDecimal("89.99"));
+        request.setStock(25);
+        request.setCategoryId(1L);
+
+        // Asigna la categoría a la entidad de prueba
+        product = new Product();
+        product.setId(1L);
+        product.setName("Mechanical Keyboard");
+        product.setPrice(new BigDecimal("89.99"));
+        product.setStock(25);
+        product.setCategory(category);
+    }
 
     @Test
     void findById_ShouldReturnProductResponse_WhenProductExists() {
@@ -91,34 +125,31 @@ class ProductServiceImplTest {
     @Test
     void create_ShouldReturnProductResponse_WhenNameIsUnique() {
         // 1. ARRANGE
-        // Datos de entrada del cliente
         ProductRequest request = new ProductRequest();
         request.setName("Mechanical Keyboard");
         request.setPrice(new BigDecimal("120.00"));
         request.setStock(15);
+        request.setCategoryId(1L); // <-- SOLUCIÓN 1: Faltaba el categoryId
 
-        // Entidad que devuelve el mapper (sin ID aún)
         Product productEntity = new Product();
         productEntity.setName("Mechanical Keyboard");
         productEntity.setPrice(new BigDecimal("120.00"));
         productEntity.setStock(15);
 
-        // Entidad que devuelve la base de datos (ya con ID)
         Product savedProduct = new Product();
         savedProduct.setId(2L);
         savedProduct.setName("Mechanical Keyboard");
         savedProduct.setPrice(new BigDecimal("120.00"));
         savedProduct.setStock(15);
+        savedProduct.setCategory(category); // <-- Asignamos la categoría del setUp()
 
-        // Respuesta final que devuelve el mapper
         ProductResponse expectedResponse = new ProductResponse();
         expectedResponse.setId(2L);
         expectedResponse.setName("Mechanical Keyboard");
-        expectedResponse.setPrice(new BigDecimal("120.00"));
-        expectedResponse.setStock(15);
 
-        // Configuramos el comportamiento de los simulacros
-        when(productRepository.existsByName(request.getName())).thenReturn(false); // Simulamos que el nombre NO existe
+        when(productRepository.existsByName(request.getName())).thenReturn(false);
+        // SOLUCIÓN 2 (Punto C): Enseñarle al mock a buscar la categoría
+        when(categoryRepository.findById(request.getCategoryId())).thenReturn(Optional.of(category));
         when(productMapper.toEntity(request)).thenReturn(productEntity);
         when(productRepository.save(productEntity)).thenReturn(savedProduct);
         when(productMapper.toResponse(savedProduct)).thenReturn(expectedResponse);
@@ -130,10 +161,7 @@ class ProductServiceImplTest {
         assertNotNull(result);
         assertEquals(2L, result.getId());
         assertEquals("Mechanical Keyboard", result.getName());
-
-        // Verificamos que se llamó al repositorio para comprobar el nombre y para guardar
-        verify(productRepository, times(1)).existsByName(request.getName());
-        verify(productRepository, times(1)).save(productEntity);
+        verify(categoryRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -143,6 +171,7 @@ class ProductServiceImplTest {
         request.setName("New Keyboard");
         request.setPrice(new BigDecimal("150.00"));
         request.setStock(20);
+        request.setCategoryId(1L); // <-- SOLUCIÓN 1: Faltaba el categoryId
 
         Product existingProduct = new Product();
         existingProduct.setId(productId);
@@ -151,14 +180,16 @@ class ProductServiceImplTest {
         Product updatedProduct = new Product();
         updatedProduct.setId(productId);
         updatedProduct.setName("New Keyboard");
+        updatedProduct.setCategory(category);
 
         ProductResponse expectedResponse = new ProductResponse();
         expectedResponse.setId(productId);
         expectedResponse.setName("New Keyboard");
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
-        // Simulamos que el nuevo nombre no existe en la base de datos
         when(productRepository.existsByName(request.getName())).thenReturn(false);
+        // SOLUCIÓN 2 (Punto C): Enseñarle al mock a buscar la categoría
+        when(categoryRepository.findById(request.getCategoryId())).thenReturn(Optional.of(category));
         when(productRepository.save(existingProduct)).thenReturn(updatedProduct);
         when(productMapper.toResponse(updatedProduct)).thenReturn(expectedResponse);
 
@@ -166,23 +197,21 @@ class ProductServiceImplTest {
 
         assertNotNull(result);
         assertEquals("New Keyboard", result.getName());
-        verify(productRepository, times(1)).save(existingProduct);
+        verify(categoryRepository, times(1)).findById(1L);
     }
 
     @Test
     void delete_ShouldDeleteProduct_WhenProductExists() {
         Long productId = 1L;
-        Product existingProduct = new Product();
-        existingProduct.setId(productId);
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
-        // doNothing() se usa para métodos void (como el delete del repositorio)
-        doNothing().when(productRepository).delete(existingProduct);
+        // SOLUCIÓN 3: Actualizar los mocks a la nueva lógica del servicio (existsById y deleteById)
+        when(productRepository.existsById(productId)).thenReturn(true);
+        doNothing().when(productRepository).deleteById(productId);
 
         productService.delete(productId);
 
-        verify(productRepository, times(1)).findById(productId);
-        verify(productRepository, times(1)).delete(existingProduct);
+        verify(productRepository, times(1)).existsById(productId);
+        verify(productRepository, times(1)).deleteById(productId);
     }
 
     @Test

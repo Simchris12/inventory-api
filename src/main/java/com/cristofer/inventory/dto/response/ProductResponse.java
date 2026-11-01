@@ -27,6 +27,9 @@ public class ProductResponse {
     @Schema(description = "Available units in stock", example = "25")
     private Integer stock;
 
+    @Schema(description = "Category details of the product")
+    private CategoryResponse category;
+
     @Schema(description = "Timestamp when the product was created", example = "2026-10-29T11:15:30")
     private LocalDateTime createdAt;
 
