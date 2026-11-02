@@ -78,7 +78,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
         <!-- JWT Authentication (Auth0) -->
         <dependency>
             <groupId>com.auth0</groupId>
