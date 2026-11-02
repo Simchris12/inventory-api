@@ -18,17 +18,29 @@ public class SecurityConfig {
                 // Desactivamos CSRF porque no usamos cookies de sesión, usaremos tokens JWT
                 .csrf(AbstractHttpConfigurer::disable)
 
+                // Desactivamos formlogin para garantizar que Spring jamás intente mostrar una ventana emergente o formulario HTML en el navegador.
+                .formLogin(AbstractHttpConfigurer::disable)
+
+                // Desactivamos httpBasic de igual manera para garantizar que Spring jamás intente mostrar una ventana emergente o formulario HTML en el navegador.
+                .httpBasic(AbstractHttpConfigurer::disable)
+
                 // Configuramos la aplicación para que no guarde el estado de la sesión (Stateless)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 // Definimos las reglas de autorización de rutas
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas (Documentación OpenAPI / Swagger)
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/error"
+                        ).permitAll()
 
                         // Cualquier otra petición (tus controladores de productos y categorías) requerirá autenticación
                         .anyRequest().authenticated()
                 );
+
 
         return http.build();
     }
