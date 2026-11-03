@@ -1,46 +1,44 @@
 package com.cristofer.inventory.config;
 
+import com.cristofer.inventory.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Desactivamos CSRF porque no usamos cookies de sesión, usaremos tokens JWT
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // Desactivamos formlogin para garantizar que Spring jamás intente mostrar una ventana emergente o formulario HTML en el navegador.
                 .formLogin(AbstractHttpConfigurer::disable)
-
-                // Desactivamos httpBasic de igual manera para garantizar que Spring jamás intente mostrar una ventana emergente o formulario HTML en el navegador.
                 .httpBasic(AbstractHttpConfigurer::disable)
-
-                // Configuramos la aplicación para que no guarde el estado de la sesión (Stateless)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Definimos las reglas de autorización de rutas
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas (Documentación OpenAPI / Swagger)
                         .requestMatchers(
+                                "/api/v1/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/error"
                         ).permitAll()
-
-                        // Cualquier otra petición (tus controladores de productos y categorías) requerirá autenticación
                         .anyRequest().authenticated()
-                );
-
+                )
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

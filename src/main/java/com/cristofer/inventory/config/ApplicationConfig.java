@@ -19,30 +19,25 @@ public class ApplicationConfig {
 
     private final UserRepository userRepository;
 
-    //Le enseña a Spring Security cómo buscar un usuario en la base de datos.
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
-    //proveedor de autenticación que usa nuestro UserDetailsService y el encriptador de contraseñas.
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService()); // <-- Asegúrate de que tenga los paréntesis ()
+        // Spring Security 7 requires UserDetailsService directly in the constructor
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
-    // El director de orquesta de la autenticación. Lo usaremos más adelante en nuestro controlador de Login.
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-
-    // Define el algoritmo de hashing (BCrypt) para que las contraseñas no se guarden en texto plano.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

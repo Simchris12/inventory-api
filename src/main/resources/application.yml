@@ -5,7 +5,7 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: updategit
+      ddl-auto: update
     showsql: true
     properties:
       hibernate:
