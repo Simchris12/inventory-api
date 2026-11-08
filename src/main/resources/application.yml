@@ -6,10 +6,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    showsql: true
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
 jwt:
-  secret: ${JWT_SECRET:universo_backend_firma_super_segura_jwt_2026_cristofer}
+  secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
