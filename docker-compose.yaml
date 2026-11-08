@@ -23,6 +23,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/inventory_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: admin
+      JWT_SECRET: universo_backend_firma_super_segura_jwt_2026_cristofer
+      JWT_EXPIRATION: 86400000
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       - db
